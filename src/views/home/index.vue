@@ -9,10 +9,10 @@
     <!-- 通过animated属性可以开启切换标签内容时的转场动画 -->
     <!-- 通过swipeable属性可以开启滑动切换标签页 -->
     <van-tabs class="channel-tabs" v-model="active" animated swipeable>
-      <van-tab title="标签 1">内容 1</van-tab>
-      <van-tab title="标签 2">内容 2</van-tab>
-      <van-tab title="标签 3">内容 3</van-tab>
-      <van-tab title="标签 4">内容 4</van-tab>
+      <van-tab v-for="channel in channels" :key="channel.id" :title="channel.name">
+        <ArticleList :channel="channel" />
+      </van-tab>
+      <div slot="nav-right" class="placeholder"></div>
       <div slot="nav-right" class="hamburger-btn">
         <i class="iconfont icongengduo"></i>
       </div>
@@ -22,19 +22,39 @@
 </template>
 
 <script>
+import { getUserChannels } from '@/api/user'
+import ArticleList from './component/article-list'
 export default {
   name: 'HomeIndex',
   data() {
     return {
-      active: 0
+      active: 0,
+      channels: [] // 频道列表
     }
   },
-  methods: {}
+  components: {
+    ArticleList
+  },
+  created() {
+    this.loadChannels()
+  },
+  methods: {
+    async loadChannels() {
+      try {
+        const { data } = await getUserChannels()
+        this.channels = data.data.channels
+        // console.log(this.channels)
+      } catch (error) {
+        this.$toast('获取频道数据失败')
+      }
+    }
+  }
 }
 </script>
 
 <style lang="less">
 .home-container {
+  padding-bottom: 100px;
   .van-nav-bar__title {
     max-width: unset;
   }
@@ -51,6 +71,12 @@ export default {
 
   /deep/ .channel-tabs {
     .van-tabs__wrap {
+      height: 82px;
+      position: fixed;
+      top: 92px;
+      z-index: 1;
+      left: 0;
+      right: 0;
       height: 82px;
     }
     .van-tab {
@@ -71,6 +97,11 @@ export default {
       background-color: #3296fa;
       bottom: 8px;
     }
+    .placeholder {
+      width: 66px;
+      height: 82px;
+      flex-shrink: 0;
+    }
     .hamburger-btn {
       position: fixed;
       right: 0;
@@ -85,7 +116,7 @@ export default {
         font-size: 33px;
       }
       &:before {
-        content: "";
+        content: '';
         position: absolute;
         left: 0;
         width: 1px;
