@@ -1,8 +1,10 @@
 <template>
   <div class="article-list">
-    <van-pull-refresh success-duration="1500" :success-text="refreshSuccessText" v-model="isrefreshLoading" @refresh="onRefresh">
-      <van-list v-model="loading" :finished="finished" finished-text="没有更多了" :error.sync="error" error-text="请求失败，点击重新加载" @load="onLoad">
-        <!-- <van-cell v-for="(article,index) in list" :key="index" :title="article.title" /> -->
+    <van-pull-refresh success-duration="1500" :success-text="refreshSuccessText" v-model="isrefreshLoading"
+      @refresh="onRefresh">
+      <van-list v-model="loading" :finished="finished" finished-text="没有更多了" :error.sync="error"
+        error-text="请求失败，点击重新加载" @load="onLoad">
+
         <ArticleItem v-for="(article,index) in list" :key="index" :article="article" />
       </van-list>
     </van-pull-refresh>
@@ -49,12 +51,15 @@ export default {
           // 是否包含置顶，进入页面第一次请求时要包含置顶文章，1-包含置顶，0-不包含
           with_top: 1
         })
-
+        // 模拟随机失败的情况
+        // if (Math.random() > 0.5) {
+        //   JSON.parse('DFSFGGSF')
+        // }
         // 2.把请求结果数据放到list数组中
         const { results } = data.data
         // 数组的展开操作符，它会把数组元素一个一个拿出来
         this.list.push(...results)
-        console.log(data)
+        // console.log(data)
 
         // 3. 本次数据加载结束之后要把加载状态设置为结束
         this.loading = false
@@ -75,7 +80,7 @@ export default {
     // 当下拉刷新的时候会触发调用该函数
     async onRefresh() {
       try {
-        // 请求获取数据
+        // 1.请求获取数据
         const { data } = await getArticles({
           channel_id: this.channel.id, // 频道id
           // 下拉刷新每次请求获取最新数据
@@ -102,7 +107,7 @@ export default {
 <style scoped lang="less">
 .article-list {
   // 百分比单位相对于父元素的
-  height: 79vh;
+  height: 86vh;
   overflow-y: auto;
 }
 </style>
