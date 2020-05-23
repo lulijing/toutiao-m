@@ -21,7 +21,7 @@
     <!-- 频道编辑弹出层 -->
     <van-popup v-model="isChennelEditShow" closeable position="bottom" close-icon-position="top-left"
       :style="{ height: '100%' }">
-      <ChannelEdit />
+      <ChannelEdit :myChannels="channels" :active="active"/>
     </van-popup>
   </div>
 </template>
