@@ -1,7 +1,7 @@
 <template>
   <div class="home-container">
     <van-nav-bar class="page-nav-bar" fixed>
-      <van-button class="search-btn" icon="search" slot="title" type="info" size="small" round>搜索</van-button>
+      <van-button class="search-btn" icon="search" slot="title" type="info" size="small" round to="/search">搜索</van-button>
     </van-nav-bar>
 
     <!-- 频道列表 -->
@@ -21,7 +21,7 @@
     <!-- 频道编辑弹出层 -->
     <van-popup v-model="isChennelEditShow" closeable position="bottom" close-icon-position="top-left"
       :style="{ height: '100%' }">
-      <ChannelEdit :myChannels="channels" :active="active"/>
+      <ChannelEdit @update-active="onUpdateActive" :myChannels="channels" :active="active" />
     </van-popup>
   </div>
 </template>
@@ -30,6 +30,8 @@
 import { getUserChannels } from '@/api/user'
 import ArticleList from './component/article-list'
 import ChannelEdit from './component/chennel-edit'
+import { mapState } from 'vuex'
+import { getItem } from '@/utils/storage'
 export default {
   name: 'HomeIndex',
   data() {
@@ -43,18 +45,45 @@ export default {
     ArticleList,
     ChannelEdit
   },
+  computed: {
+    ...mapState(['user'])
+  },
   created() {
     this.loadChannels()
   },
   methods: {
     async loadChannels() {
       try {
-        const { data } = await getUserChannels()
-        this.channels = data.data.channels
+        // const { data } = await getUserChannels()
+        // this.channels = data.data.channels
         // console.log(this.channels)
+        let channels = []
+        if (this.user) {
+          const { data } = await getUserChannels()
+          channels = data.data.channels
+        } else {
+          // 未登录，判断是否有本地的频道列表
+          const localChannels = getItem('TOUTIAO_CHANNELS')
+          if (localChannels) {
+            channels = localChannels
+          } else {
+            // 没有 请求获取默认频道列表
+            const { data } = await getUserChannels()
+            channels = data.data.channels
+          }
+        }
+        this.channels = channels
       } catch (error) {
         this.$toast('获取频道数据失败')
       }
+    },
+    onUpdateActive(index, isChannelEditShow = true) {
+      // console.log('home', index)
+      // 更新激活的频道项
+      this.active = index
+
+      // 关闭编辑频道弹层
+      this.isChennelEditShow = false
     }
   }
 }
