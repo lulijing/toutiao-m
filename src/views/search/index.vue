@@ -12,16 +12,21 @@
           background="#3296fa"
           @search="onSearch"
           @cancel="onCancel"
+          @focus="isResultShow = false"
         />
       </form>
+      <!-- 搜索结果 -->
+      <search-result v-if="isResultShow" :search-text="searchText" />
+
+      <!-- 联想建议 -->
+      <search-suggestion
+        @search="onSearch"
+        :search-text="searchText"
+        v-else-if="searchText"
+      />
 
       <!-- 搜索历史纪录 -->
-      <search-history />
-      <!-- 联想建议 -->
-      <search-suggestion/>
-
-      <!-- 历史纪录 -->
-      <search-result/>
+      <search-history v-else />
     </div>
   </div>
 </template>
@@ -40,12 +45,15 @@ export default {
   },
   data() {
     return {
-      searchText: ''
+      searchText: '',
+      isResultShow: false // 控制搜索结果的展示
     }
   },
   methods: {
     onSearch(val) {
       this.$toast(val)
+      this.searchText = val
+      this.isResultShow = true
     },
     onCancel() {
       // 返回首页
