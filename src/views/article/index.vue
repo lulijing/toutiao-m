@@ -54,14 +54,22 @@
         <!-- 文章内容 -->
         <div class="article-content markdown-bodys" v-html="article.content" ref="article-content"></div>
         <van-divider>正文结束</van-divider>
+        <!-- 评论列表start -->
+        <comment-list />
+        <!-- 评论列表end -->
+
         <!-- 底部区域 -->
         <div class="article-bottom">
           <van-button class="comment-btn" type="default" round size="small">写评论</van-button>
           <van-icon class="comment-icon" name="comment-o" info="123" />
           <!-- 收藏按钮组件 -->
-          <collect-article v-model="article.is_collected" class="btn-item" />
+          <collect-article v-model="article.is_collected" :article-id="article.art_id" class="btn-item" />
 
-          <van-button class="btn-item" icon="good-job-o" />
+          <!-- 点赞按钮组件 -->
+          <!-- <van-button class="btn-item" icon="good-job-o" /> -->
+          <like-article class="btn-item" v-model="article.attitude" :article-id="article.art_id" />
+
+          <!-- 分享按钮 -->
           <van-icon name="share" color="#777777"></van-icon>
         </div>
         <!-- /底部区域 -->
@@ -91,6 +99,8 @@ import { getArticleById } from '@/api/article'
 import { ImagePreview } from 'vant'
 import FollowUser from '@/components/follow-user'
 import CollectArticle from '@/components/collect-article'
+import LikeArticle from '@/components/like-article'
+import CommentList from './components/comment-list'
 export default {
   name: 'ArticleIndex',
   props: {
@@ -101,7 +111,9 @@ export default {
   },
   components: {
     FollowUser,
-    CollectArticle
+    CollectArticle,
+    LikeArticle,
+    CommentList
   },
   data() {
     return {
