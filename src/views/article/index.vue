@@ -55,13 +55,14 @@
         <div class="article-content markdown-bodys" v-html="article.content" ref="article-content"></div>
         <van-divider>正文结束</van-divider>
         <!-- 评论列表start -->
-        <comment-list />
+        <comment-list :list="commentList" :source="article.art_id" @totalCount="totalCount = $event.total_count"
+          @reply-click="obReplyClick" />
         <!-- 评论列表end -->
 
         <!-- 底部区域 -->
         <div class="article-bottom">
-          <van-button class="comment-btn" type="default" round size="small">写评论</van-button>
-          <van-icon class="comment-icon" name="comment-o" info="123" />
+          <van-button class="comment-btn" type="default" round size="small" @click="isPostShow = true">写评论</van-button>
+          <van-icon class="comment-icon" name="comment-o" :info="totalCount" />
           <!-- 收藏按钮组件 -->
           <collect-article v-model="article.is_collected" :article-id="article.art_id" class="btn-item" />
 
@@ -73,6 +74,12 @@
           <van-icon name="share" color="#777777"></van-icon>
         </div>
         <!-- /底部区域 -->
+
+        <!-- 发布评论 -->
+        <van-popup v-model="isPostShow" position="bottom">
+          <CommentPost :list="commentList" :target="article.art_id" @post-success="onPostSuccess" />
+        </van-popup>
+        <!-- 发布评论 -->
       </div>
       <!-- /加载完成-文章详情 -->
 
@@ -91,6 +98,12 @@
       </div>
       <!-- /加载失败：其它未知错误（例如网络原因或服务端异常） -->
     </div>
+
+    <!-- 评论回复弹层 -->
+    <van-popup v-model="isReplyShow" position="bottom" style="height:100%">
+      <CommentReply v-if="isReplyShow" :comment="currentComment" @close="isReplyShow = false" />
+    </van-popup>
+    <!-- 评论回复弹层 -->
   </div>
 </template>
 
@@ -101,6 +114,8 @@ import FollowUser from '@/components/follow-user'
 import CollectArticle from '@/components/collect-article'
 import LikeArticle from '@/components/like-article'
 import CommentList from './components/comment-list'
+import CommentPost from './components/comment-post'
+import CommentReply from './components/comment-reply'
 export default {
   name: 'ArticleIndex',
   props: {
@@ -113,13 +128,20 @@ export default {
     FollowUser,
     CollectArticle,
     LikeArticle,
-    CommentList
+    CommentList,
+    CommentPost,
+    CommentReply
   },
   data() {
     return {
       article: {}, // 文章详情
       loading: false, // 加载中的loading状态
-      errStatus: 0
+      errStatus: 0,
+      totalCount: 0, // 评论总数
+      isPostShow: false, // 控制发布评论的显示状态
+      commentList: [], // 评论列表
+      isReplyShow: false,
+      currentComment: {} // 当前点击的回复项
     }
   },
   created() {
@@ -169,6 +191,19 @@ export default {
           })
         }
       })
+    },
+    onPostSuccess(data) {
+      // 关闭弹层
+      this.isPostShow = false
+
+      // 将发布内容显示到列表顶部
+      this.commentList.unshift(data.new_obj)
+    },
+    obReplyClick(comment) {
+      this.currentComment = comment
+      console.log(comment)
+      // 显示评论回复弹出层
+      this.isReplyShow = true
     }
   }
 }
