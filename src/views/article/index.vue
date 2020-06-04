@@ -124,6 +124,12 @@ export default {
       required: true
     }
   },
+  // 给所有的后代组件提供数据
+  provide: function() {
+    return {
+      articleId: this.articleId
+    }
+  },
   components: {
     FollowUser,
     CollectArticle,
@@ -201,7 +207,7 @@ export default {
     },
     obReplyClick(comment) {
       this.currentComment = comment
-      console.log(comment)
+      // console.log(comment)
       // 显示评论回复弹出层
       this.isReplyShow = true
     }
