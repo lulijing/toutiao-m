@@ -1,11 +1,12 @@
 <template>
   <div class="user-profile">
     <!-- 导航栏 -->
-    <van-nav-bar class="page-nav-bar" title="个人信息" left-arrow @click="$router.back()" />
+    <van-nav-bar class="page-nav-bar" title="个人信息" left-arrow @click-left="$router.back()" />
     <!-- 导航栏 -->
 
+    <input type="file" hidden ref="file" @change="onFileChange" />
     <!-- 个人信息 -->
-    <van-cell title="头像" is-link>
+    <van-cell title="头像"  @click="$refs.file.click()" is-link>
       <van-image class="avatar" fit="cover" round :src="user.photo"></van-image>
     </van-cell>
     <van-cell @click="isUpdateNameShow = true" title="昵称" :value="user.name" is-link></van-cell>
@@ -37,6 +38,15 @@
     >
       <UpdateBirthday v-if="isUpdateBirthdayShow" v-model="user.birthday" @close="isUpdateBirthdayShow = false"/>
     </van-popup>
+
+    <!-- 编辑头像 -->
+    <van-popup
+      v-model="isUpdatePhotoShow"
+      position="bottom"
+      style="height:100%;"
+    >
+      <UpdatePhoto @update-photo ="user.photo = $event" :img="img" v-if="isUpdatePhotoShow" @close="isUpdatePhotoShow = false" />
+    </van-popup>
   </div>
 </template>
 
@@ -45,19 +55,23 @@ import { getUserProfile } from '@/api/user'
 import UpdateName from './components/update-name'
 import UpdateSex from './components/update-sex'
 import UpdateBirthday from './components/update-birthday'
+import UpdatePhoto from './components/update-photo'
 export default {
   name: 'UserProfile',
   components: {
     UpdateName,
     UpdateSex,
-    UpdateBirthday
+    UpdateBirthday,
+    UpdatePhoto
   },
   data() {
     return {
       user: {},
       isUpdateNameShow: false,
       isUpdateSexShow: false,
-      isUpdateBirthdayShow: false
+      isUpdateBirthdayShow: false,
+      isUpdatePhotoShow: false,
+      img: null // 预览的图片
     }
   },
   created() {
@@ -72,6 +86,20 @@ export default {
       } catch (error) {
         this.$toast.fail('获取用户信息失败，请重试')
       }
+    },
+    onFileChange () {
+      // 获取文件对象
+      const file = this.$refs.file.files[0]
+      console.log(file, '1111')
+      // 基于文件对象获取 blob 数据
+      this.img = window.URL.createObjectURL(file)
+      // console.log(data)
+      // 展示预览弹出层
+      this.isUpdatePhotoShow = true
+
+      // file-input 如果选了同一个文件不会触发change事件
+      // 解决办法就是每次使用完毕，把它的value清空
+      this.$refs.file.value = ''
     }
   }
 }
