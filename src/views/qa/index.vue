@@ -1,6 +1,6 @@
 <template>
   <div class="qa-container">
-    问答
+    问答模块正在开发中...
   </div>
 </template>
 
